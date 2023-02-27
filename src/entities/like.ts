@@ -33,5 +33,5 @@ export class LikeHistory {
 
   @ManyToOne(() => Schedules, (schedule) => schedule.id)
   @JoinColumn([{ name: 'scheduleOwnerId', referencedColumnName: 'id' }])
-  ScheduleID: Users;
+  ScheduleID: Schedules;
 }
