@@ -5,6 +5,9 @@ import { LikeHistory } from 'src/entities/like';
 import { Item } from 'src/entities/item';
 import { Inventory } from 'src/entities/inventory';
 import dotenv from 'dotenv';
+import { LikeHistory } from 'src/entities/like';
+import { Item } from 'src/entities/item';
+import { Inventory } from 'src/entities/inventory';
 
 dotenv.config();
 const config: TypeOrmModuleOptions = {
