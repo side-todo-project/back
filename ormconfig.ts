@@ -6,11 +6,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 const config: TypeOrmModuleOptions = {
   type: 'mysql',
-  host: 'localhost',
-  port: 3306,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT as unknown as number,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
-  database: 'todo',
+  database: process.env.DB_DATABASE,
   entities: [Users, Schedules],
   synchronize: false, // 한번 true한 뒤로는 무조건 false
   autoLoadEntities: true,

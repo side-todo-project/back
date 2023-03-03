@@ -19,11 +19,17 @@ export class Users {
   @Column('varchar', { name: 'email', unique: true, length: 30 })
   email: string;
 
-  @Column('varchar', { name: 'nickname', length: 20 })
-  name: string;
+  @Column('varchar', { name: 'nickname', unique: true, length: 20 })
+  nickname: string;
+
+  @Column('varchar', { name: 'provider', length: 20 })
+  provider: string;
+
+  @Column('varchar', { name: 'socialId', length: 20 })
+  socialId: string;
 
   @Column('int', { name: 'cash' })
-  age: number;
+  cash: number;
 
   @Column('varchar', { name: 'refreshToken', length: 20 })
   refreshToken: string;
