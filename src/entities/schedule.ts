@@ -5,10 +5,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Users } from './user';
+import { LikeHistory } from './like';
 
 @Entity({ schema: 'todo', name: 'schedules' })
 export class Schedules {
@@ -54,4 +56,7 @@ export class Schedules {
   })
   @JoinColumn([{ name: 'scheduleOwnerId', referencedColumnName: 'id' }])
   ScheduleOwnerId: Users;
+
+  @OneToMany(() => LikeHistory, (likeHistory) => likeHistory.ScheduleID)
+  LikeHistorys: LikeHistory[];
 }
