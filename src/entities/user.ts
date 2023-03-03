@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Schedules } from './schedule';
+import { LikeHistory } from './like';
 
 @Entity({ schema: 'todo', name: 'users' })
 export class Users {
@@ -45,6 +46,9 @@ export class Users {
 
   @OneToMany(() => Schedules, (schedules) => schedules.ScheduleOwnerId)
   OwnedUserSchedules: Schedules[];
+
+  @OneToMany(() => LikeHistory, (likeHistory) => likeHistory.LikeOwnerID)
+  LikeHistorys: LikeHistory[];
 
   @ManyToMany(() => Users, (users) => users.id)
   @JoinTable({
