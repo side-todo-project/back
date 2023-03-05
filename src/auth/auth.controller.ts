@@ -27,4 +27,22 @@ export class AuthController {
 
     return res.send(result);
   }
+
+  @Get('/login/naver')
+  @UseGuards(AuthGuard('naver'))
+  async loginNaver(@Req() req: Request) {
+    return HttpStatus.OK;
+  }
+
+  @Get('/naver/redirect')
+  @UseGuards(AuthGuard('naver'))
+  async naverRedirect(@Req() req: Request, @Res() res: Response) {
+    const result = await this.authService.validateUser(
+      req.user.email,
+      req.user.socialId,
+      'naver',
+    );
+
+    return res.send(result);
+  }
 }
