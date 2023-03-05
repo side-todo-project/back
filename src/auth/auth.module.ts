@@ -7,6 +7,7 @@ import { Users } from 'src/entities/user';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { KakaoStrategy } from './kakao.strategy';
+import { NaverStrategy } from './naver.strategy';
 dotenv.config();
 
 @Module({
@@ -24,6 +25,6 @@ dotenv.config();
   ],
   exports: [JwtModule],
   controllers: [AuthController],
-  providers: [AuthService, KakaoStrategy],
+  providers: [AuthService, KakaoStrategy, NaverStrategy],
 })
 export class AuthModule {}
