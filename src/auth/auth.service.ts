@@ -21,19 +21,15 @@ export class AuthService {
 
     if (user) {
       const token = this.jwtService.sign({ userEmail: email });
-      if (user.nickname === null) {
-        return { userData: user, accessToken: token, newUser: true };
-      } else {
-        return { userData: user, accessToken: token, newUser: false };
-      }
+      return { userData: user, accessToken: token, newUser: false };
     }
 
     try {
-      console.log(`create new User with ${provider}......`);
+      console.log('create new User with kakao......');
       const newUser = await queryRunner.manager.getRepository(Users).save({
         email,
         socialId,
-        nickname: '',
+        nickname: 'any',
         provider: provider,
         cash: 0,
       });
