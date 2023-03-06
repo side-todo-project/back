@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  Body,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/user';
 import { DataSource, Repository } from 'typeorm';
@@ -6,37 +11,31 @@ import { DataSource, Repository } from 'typeorm';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(Users) private usersRepository: Repository<Users>,
     private dataSource: DataSource,
+    @InjectRepository(Users) private usersRepository: Repository<Users>,
   ) {}
 
-  async findByEmail(email: string) {
-    return this.usersRepository.findOne({
-      where: { email },
-      select: ['id', 'email'],
+  async findByEmail(email: string, provider: string, socialId: string) {
+    const user = await this.usersRepository.findOne({
+      // or?
+      where: { email: email, provider: provider, socialId: socialId },
     });
+
+    if (!user) {
+      throw null;
+    } else {
+      return user;
+    }
   }
 
-  async join(email: string, nickname: string) {
+  async setNickname(user: Users, nickname: string) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    const user = await queryRunner.manager
-      .getRepository(Users)
-      .findOne({ where: { email } });
-    if (user) {
-      throw new ForbiddenException('이미 존재하는 사용자입니다');
-    }
+
     try {
-      await queryRunner.manager.getRepository(Users).save({
-        email,
-        nickname,
-      });
-
-      await queryRunner.commitTransaction();
-
-      console.log('save!');
-      return true;
+      user.nickname = nickname;
+      return this.usersRepository.save(user);
     } catch (error) {
       console.error(error);
       await queryRunner.rollbackTransaction();
