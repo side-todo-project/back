@@ -14,7 +14,7 @@ import { LikeHistory } from './like';
 
 @Entity({ schema: 'todo', name: 'users' })
 export class Users {
-  @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
+  @PrimaryGeneratedColumn({ type: 'int', name: 'id' }) // select:false option 달면 query시에 안가져옴
   id: number;
 
   @Column('varchar', { name: 'email', unique: true, length: 30 })
