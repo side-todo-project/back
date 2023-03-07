@@ -1,6 +1,5 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-kakao';
-import { AuthService } from './auth.service';
 import dotenv from 'dotenv';
 dotenv.config();
 

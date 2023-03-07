@@ -8,6 +8,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { KakaoStrategy } from './kakao.strategy';
 import { NaverStrategy } from './naver.strategy';
+import { GoogleStrategy } from './google.strategy';
 dotenv.config();
 
 @Module({
@@ -25,6 +26,6 @@ dotenv.config();
   ],
   exports: [JwtModule],
   controllers: [AuthController],
-  providers: [AuthService, KakaoStrategy, NaverStrategy],
+  providers: [AuthService, KakaoStrategy, NaverStrategy, GoogleStrategy],
 })
 export class AuthModule {}
