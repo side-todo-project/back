@@ -25,7 +25,11 @@ export class AuthController {
       'kakao',
     );
 
-    return res.send(result);
+    if (result.newUser) {
+      // 우리쪽에서 redirect 재요청할지 선택
+      return res.status(200).send({ nickname: false });
+    }
+    return res.status(200).send(result);
   }
 
   @Get('/login/naver')
@@ -43,6 +47,23 @@ export class AuthController {
       'naver',
     );
 
+    return res.send(result);
+  }
+
+  @Get('/login/google')
+  @UseGuards(AuthGuard('google'))
+  async loginGoogle(@Req() req: Request) {
+    return HttpStatus.OK;
+  }
+
+  @Get('/google/redirect')
+  @UseGuards(AuthGuard('google'))
+  async googleRedirect(@Req() req: Request, @Res() res: Response) {
+    const result = await this.authService.validateUser(
+      req.user.email,
+      req.user.socialId,
+      'google',
+    );
     return res.send(result);
   }
 }
