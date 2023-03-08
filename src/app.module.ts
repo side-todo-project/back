@@ -1,23 +1,37 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 
+//module
+import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ScheduleModule } from './schedule/schedule.module';
 
-import { AuthModule } from './auth/auth.module';
+//controller
+import { AppController } from './app.controller';
 import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
+import { UserController } from './user/user.controller';
 
+//service
+import { AppService } from './app.service';
+import { AuthService } from './auth/auth.service';
+import { UserService } from './user/user.service';
+
+//middleware
+import ormconfig from '../ormconfig';
+import { JwtMiddleware } from './middlewares/jwt.middleware';
+
+//entities
 import { Users } from './entities/user';
 import { Schedules } from './entities/schedule';
 
-import ormconfig from '../ormconfig';
-
 @Module({
-  controllers: [AppController, AuthController],
-  providers: [AppService, AuthService],
+  controllers: [AppController, AuthController, UserController],
+  providers: [AppService, AuthService, UserService],
   imports: [
     UserModule,
     ScheduleModule,
@@ -25,6 +39,14 @@ import ormconfig from '../ormconfig';
     Users,
     Schedules,
     TypeOrmModule.forRoot(ormconfig),
+    TypeOrmModule.forFeature([Users]),
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(JwtMiddleware).forRoutes({
+      path: 'api/*', // 특정 path 혹은 method에 대해서만 적용 시킬수도 있다.
+      method: RequestMethod.ALL,
+    });
+  }
+}

@@ -41,6 +41,8 @@ export class UserService {
         })
         .where({ email: email })
         .execute();
+
+      return { code: 200, success: true };
     } catch (error) {
       console.error(error);
       throw error;
