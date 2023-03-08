@@ -15,33 +15,35 @@ export class UserService {
     @InjectRepository(Users) private usersRepository: Repository<Users>,
   ) {}
 
-  async findByEmail(email: string, provider: string, socialId: string) {
+  async setNickname(email: string, nickname: string) {
+    const dupNickname = await this.usersRepository.findOne({
+      where: { nickname: nickname },
+    });
+
+    if (dupNickname) {
+      return { message: '이미 존재하는 닉네임입니다!' };
+    }
+
     const user = await this.usersRepository.findOne({
-      // or?
-      where: { email: email, provider: provider, socialId: socialId },
+      where: { email: email },
     });
 
     if (!user) {
-      throw null;
-    } else {
-      return user;
+      return { message: '존재하지 않는 사용자 입니다' };
     }
-  }
-
-  async setNickname(user: Users, nickname: string) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
 
     try {
-      user.nickname = nickname;
-      return this.usersRepository.save(user);
+      await this.dataSource
+        .createQueryBuilder()
+        .update(Users)
+        .set({
+          nickname: nickname,
+        })
+        .where({ email: email })
+        .execute();
     } catch (error) {
       console.error(error);
-      await queryRunner.rollbackTransaction();
       throw error;
-    } finally {
-      await queryRunner.release();
     }
   }
 }
