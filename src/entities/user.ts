@@ -20,7 +20,7 @@ export class Users {
   @Column('varchar', { name: 'email', unique: true, length: 30 })
   email: string;
 
-  @Column('varchar', { name: 'nickname', unique: true, length: 20 })
+  @Column('varchar', { name: 'nickname', length: 20 })
   nickname: string;
 
   @Column('varchar', { name: 'provider', length: 20 })
