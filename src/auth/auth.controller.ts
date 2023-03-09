@@ -49,7 +49,7 @@ export class AuthController {
       newUser: result.newUser,
     });
 
-    return res.redirect('http://localhost:3000/loginSuccess?' + query);
+    return res.redirect('http://localhost:3030/loginSuccess?' + query);
   }
 
   @ApiOperation({ summary: '네이버 로그인 api' })
@@ -82,7 +82,7 @@ export class AuthController {
       newUser: result.newUser,
     });
 
-    return res.redirect('http://localhost:3000/loginSuccess?' + query);
+    return res.redirect('http://localhost:3030/loginSuccess?' + query);
   }
 
   @ApiOperation({ summary: '구글 로그인 api' })
@@ -115,7 +115,7 @@ export class AuthController {
       newUser: result.newUser,
     });
 
-    return res.redirect('http://localhost:3000/loginSuccess?' + query);
+    return res.redirect('http://localhost:3030/loginSuccess?' + query);
   }
 
   @ApiOperation({ summary: 'refresh Token' })
