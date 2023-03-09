@@ -6,6 +6,7 @@ import { AuthGuard } from '@nestjs/passport/dist';
 import { AuthService } from './auth.service';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtService } from '@nestjs/jwt';
+import querystring from 'querystring';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -18,10 +19,11 @@ export class AuthController {
   @ApiOperation({
     summary: '카카오 로그인 api',
   })
-  // @ApiResponse({
-  //   status: 403,
-  //   description: 'Forbidden',
-  // })
+  @ApiResponse({
+    status: 200,
+    description:
+      'localhost:3000/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
+  })
   @Get('/login/kakao')
   @UseGuards(AuthGuard('kakao'))
   async loginKakao(@Req() req: Request) {
@@ -38,14 +40,24 @@ export class AuthController {
       'kakao',
     );
 
-    if (result.newUser) {
-      // 우리쪽에서 redirect 재요청할지 선택
-      return res.status(200).send({ nickname: false });
-    }
-    return res.status(200).send(result);
+    const query = querystring.stringify({
+      id: result.userData.id,
+      nickname: result.userData.nickname,
+      email: result.userData.email,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      newUser: result.newUser,
+    });
+
+    return res.redirect('http://localhost:3000/loginSuccess?' + query);
   }
 
   @ApiOperation({ summary: '네이버 로그인 api' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'localhost:3000/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
+  })
   @Get('/login/naver')
   @UseGuards(AuthGuard('naver'))
   async loginNaver(@Req() req: Request) {
@@ -60,10 +72,25 @@ export class AuthController {
       req.user.socialId,
       'naver',
     );
-    return res.send(result);
+
+    const query = querystring.stringify({
+      id: result.userData.id,
+      nickname: result.userData.nickname,
+      email: result.userData.email,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      newUser: result.newUser,
+    });
+
+    return res.redirect('http://localhost:3000/loginSuccess?' + query);
   }
 
   @ApiOperation({ summary: '구글 로그인 api' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'localhost:3000/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
+  })
   @Get('/login/google')
   @UseGuards(AuthGuard('google'))
   async loginGoogle(@Req() req: Request) {
@@ -78,7 +105,17 @@ export class AuthController {
       req.user.socialId,
       'google',
     );
-    return res.send(result);
+
+    const query = querystring.stringify({
+      id: result.userData.id,
+      nickname: result.userData.nickname,
+      email: result.userData.email,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      newUser: result.newUser,
+    });
+
+    return res.redirect('http://localhost:3000/loginSuccess?' + query);
   }
 
   @ApiOperation({ summary: 'refresh Token' })
