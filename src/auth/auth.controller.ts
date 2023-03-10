@@ -6,7 +6,10 @@ import { AuthGuard } from '@nestjs/passport/dist';
 import { AuthService } from './auth.service';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtService } from '@nestjs/jwt';
+
+import dotenv from 'dotenv';
 import querystring from 'querystring';
+dotenv.config();
 
 @ApiTags('auth')
 @Controller('auth')
@@ -22,7 +25,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description:
-      'localhost:3000/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
+      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
   })
   @Get('/login/kakao')
   @UseGuards(AuthGuard('kakao'))
@@ -49,14 +52,14 @@ export class AuthController {
       newUser: result.newUser,
     });
 
-    return res.redirect('http://localhost:3030/loginSuccess?' + query);
+    return res.redirect(`${process.env.FRONT_PORT}/loginSuccess?` + query);
   }
 
   @ApiOperation({ summary: '네이버 로그인 api' })
   @ApiResponse({
     status: 200,
     description:
-      'localhost:3000/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
+      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
   })
   @Get('/login/naver')
   @UseGuards(AuthGuard('naver'))
@@ -82,14 +85,14 @@ export class AuthController {
       newUser: result.newUser,
     });
 
-    return res.redirect('http://localhost:3030/loginSuccess?' + query);
+    return res.redirect(`${process.env.FRONT_PORT}/loginSuccess?` + query);
   }
 
   @ApiOperation({ summary: '구글 로그인 api' })
   @ApiResponse({
     status: 200,
     description:
-      'localhost:3000/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
+      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
   })
   @Get('/login/google')
   @UseGuards(AuthGuard('google'))
@@ -115,7 +118,7 @@ export class AuthController {
       newUser: result.newUser,
     });
 
-    return res.redirect('http://localhost:3030/loginSuccess?' + query);
+    return res.redirect(`${process.env.FRONT_PORT}/loginSuccess?` + query);
   }
 
   @ApiOperation({ summary: 'refresh Token' })
