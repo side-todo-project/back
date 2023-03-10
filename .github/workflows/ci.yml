@@ -29,4 +29,10 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: rollrat/todo:latest
+          tags: rollrat/todo-backend:latest
+      - name: Diploy
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.WEBHOOK_URL }}
+          method: 'POST'
+          timeout: 60000
