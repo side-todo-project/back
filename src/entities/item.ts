@@ -12,10 +12,10 @@ export class Item {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('varchar', { name: 'comment', length: 32 })
+  @Column('varchar', { name: 'name', length: 32 })
   name: string;
 
-  @Column()
+  @Column('integer', { name: 'price', default: 0 })
   price: number;
 
   @Column('varchar', { name: 'comment', length: 128 })
