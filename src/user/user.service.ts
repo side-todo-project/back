@@ -1,8 +1,9 @@
 import {
   Body,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/user';
@@ -14,6 +15,17 @@ export class UserService {
     private dataSource: DataSource,
     @InjectRepository(Users) private usersRepository: Repository<Users>,
   ) {}
+  async findUserByEmail(userEmail: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email: userEmail },
+    });
+
+    if (!user) {
+      throw new HttpException('INVALID USER', HttpStatus.UNAUTHORIZED);
+    }
+
+    return user.id;
+  }
 
   async setNickname(email: string, nickname: string) {
     const dupNickname = await this.usersRepository.findOne({

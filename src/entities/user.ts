@@ -44,21 +44,21 @@ export class Users {
   @DeleteDateColumn()
   deletedAt: Date | null;
 
-  @OneToMany(() => Schedules, (schedules) => schedules.ScheduleOwnerId)
-  OwnedUserSchedules: Schedules[];
+  @OneToMany(() => Schedules, (schedules) => schedules.ScheduleOwner)
+  Schedule: Schedules[];
 
-  @OneToMany(() => LikeHistory, (likeHistory) => likeHistory.LikeOwnerID)
+  @OneToMany(() => LikeHistory, (likeHistory) => likeHistory.UserId)
   LikeHistorys: LikeHistory[];
 
   @ManyToMany(() => Users, (users) => users.id)
   @JoinTable({
-    name: 'follow',
+    name: 'Follow',
     joinColumn: {
-      name: 'followingId',
+      name: 'FollowingId',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'follwerId',
+      name: 'FollwerId',
       referencedColumnName: 'id',
     },
   })

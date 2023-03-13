@@ -13,10 +13,10 @@ import { Schedules } from './schedule';
 @Entity({ schema: 'todo', name: 'like_history' })
 export class LikeHistory {
   @PrimaryColumn()
-  likeOwnerId: number;
+  UserId: number;
 
   @PrimaryColumn()
-  scheduleOwnerId: number;
+  ScheduleId: number;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -28,10 +28,10 @@ export class LikeHistory {
   deletedAt: Date | null;
 
   @ManyToOne(() => Users, (users) => users.id)
-  @JoinColumn([{ name: 'likeOwnerId', referencedColumnName: 'id' }])
-  LikeOwnerID: Users;
+  @JoinColumn([{ name: 'UserId', referencedColumnName: 'id' }])
+  User: Users;
 
   @ManyToOne(() => Schedules, (schedule) => schedule.id)
-  @JoinColumn([{ name: 'scheduleOwnerId', referencedColumnName: 'id' }])
-  ScheduleID: Schedules;
+  @JoinColumn([{ name: 'ScheduleId', referencedColumnName: 'id' }])
+  Schedule: Schedules;
 }

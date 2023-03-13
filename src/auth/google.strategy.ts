@@ -3,13 +3,6 @@ import { Strategy, Profile } from 'passport-google-oauth20';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// 여기 kakaoType 부분은 어디 폴더로 뺄지 논의 후 이동
-interface kakaoType {
-  _json: {
-    id: number;
-    emails: any;
-  };
-}
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor() {
     super({
