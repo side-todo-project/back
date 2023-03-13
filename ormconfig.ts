@@ -5,6 +5,7 @@ import { Schedules } from './src/entities/schedule';
 import { LikeHistory } from './src/entities/like';
 import { Item } from './src/entities/item';
 import { Inventory } from './src/entities/inventory';
+import { Charactors } from './src/entities/charactor';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -15,7 +16,7 @@ const config: TypeOrmModuleOptions = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  entities: [Users, Schedules, LikeHistory, Inventory, Item],
+  entities: [Users, Schedules, LikeHistory, Inventory, Item, Charactors],
   synchronize: false, // 한번 true한 뒤로는 무조건 false
   autoLoadEntities: true,
   // charset: 'utf8mb4',

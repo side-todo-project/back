@@ -25,9 +25,9 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private usersService: UserService) {}
 
+  @Put('/nickname')
   @ApiOperation({ summary: '회원가입 후 닉네임 설정하기' })
   @ApiBody({ type: SetNicknameRequestDto })
-  @Put('/nickname')
   async nickname(@Body() data: SetNicknameRequestDto) {
     return this.usersService.setNickname(data.email, data.nickname);
   }

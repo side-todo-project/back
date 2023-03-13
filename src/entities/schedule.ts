@@ -17,29 +17,26 @@ export class Schedules {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
-  // @Column('date', { name: 'date' })
-  // email: string;
+  @Column('date', { name: 'scheduleDate' })
+  scheduleDate: Date;
 
-  @Column('time', { name: 'time' })
-  name: string;
+  @Column('json', { name: 'schedule' })
+  schedule: string;
 
-  @Column('varchar', { name: 'when' })
-  when: string;
+  @Column('boolean', { name: 'isPrivate' })
+  isPrivate: boolean;
 
-  @Column('varchar', { name: 'todo' })
-  todo: string;
-
-  @Column('boolean', { name: 'private' })
-  private: string;
-
-  @Column('int', { name: 'likeCount' })
+  @Column('int', { name: 'likeCount', default: 0 })
   likeCount: string;
 
-  @Column('int', { name: 'check' })
-  check: string;
+  @Column('simple-array', { name: 'check' })
+  check: boolean[];
 
   @Column('simple-array', { name: 'tags' })
   tags: string[];
+
+  @Column('int', { name: 'ScheduleOwnerId', nullable: true })
+  ScheduleOwnerId: number | null;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -50,13 +47,13 @@ export class Schedules {
   @DeleteDateColumn()
   deletedAt: Date | null;
 
-  @ManyToOne(() => Users, (users) => users.id, {
+  @ManyToOne(() => Users, (users) => users.Schedule, {
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
-  @JoinColumn([{ name: 'scheduleOwnerId', referencedColumnName: 'id' }])
-  ScheduleOwnerId: Users;
+  @JoinColumn([{ name: 'ScheduleOwnerId', referencedColumnName: 'id' }])
+  ScheduleOwner: Users;
 
-  @OneToMany(() => LikeHistory, (likeHistory) => likeHistory.ScheduleID)
+  @OneToMany(() => LikeHistory, (likeHistory) => likeHistory.Schedule)
   LikeHistorys: LikeHistory[];
 }

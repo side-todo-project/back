@@ -39,7 +39,7 @@ import { Schedules } from './entities/schedule';
     Users,
     Schedules,
     TypeOrmModule.forRoot(ormconfig),
-    TypeOrmModule.forFeature([Users]),
+    TypeOrmModule.forFeature([Users, Schedules]),
   ],
 })
 export class AppModule implements NestModule {
