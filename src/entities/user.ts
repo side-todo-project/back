@@ -3,14 +3,17 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Schedules } from './schedule';
 import { LikeHistory } from './like';
+import { Charactors } from './charactor';
 
 @Entity({ schema: 'todo', name: 'users' })
 export class Users {
@@ -46,6 +49,10 @@ export class Users {
 
   @OneToMany(() => Schedules, (schedules) => schedules.ScheduleOwner)
   Schedule: Schedules[];
+
+  @OneToOne(() => Charactors, (charactors) => charactors.User)
+  @JoinColumn()
+  Charactor: Charactors;
 
   @OneToMany(() => LikeHistory, (likeHistory) => likeHistory.UserId)
   LikeHistorys: LikeHistory[];
