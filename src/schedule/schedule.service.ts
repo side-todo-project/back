@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { DataSource, Repository } from 'typeorm';
@@ -22,7 +22,6 @@ export class ScheduleService {
   ) {
     const json_schedules = JSON.stringify(schedules);
     const checkArr = Array.from({ length: schedules.length }, () => false);
-
     const schedule = new Schedules();
     schedule.scheduleDate = scheduleDate;
     schedule.schedule = json_schedules;
@@ -38,7 +37,6 @@ export class ScheduleService {
     } catch (error) {
       console.error(error);
       throw error;
-    } finally {
     }
   }
 
@@ -75,6 +73,37 @@ export class ScheduleService {
           tags,
           check: checkArr,
           ScheduleOwnerId: userId,
+        })
+        .where({ id: scheduleId })
+        .execute();
+
+      return await this.scheduleRepository.findOne({
+        where: { id: schedule.id },
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async checkSchedule(scheduleId: number, scheduleIdx: number) {
+    const schedule = await this.scheduleRepository.findOne({
+      where: { id: scheduleId },
+    });
+
+    if (!schedule) {
+      throw new NotFoundException('schedule is not found');
+    }
+
+    let checkArr = schedule.check;
+    checkArr[scheduleIdx] = !checkArr[scheduleIdx];
+
+    try {
+      await this.dataSource
+        .createQueryBuilder()
+        .update(Schedules)
+        .set({
+          check: checkArr,
         })
         .where({ id: scheduleId })
         .execute();
