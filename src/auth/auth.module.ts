@@ -6,23 +6,29 @@ import { Users } from 'src/entities/user';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { UserService } from '../user/user.service';
+
 import { KakaoStrategy } from './kakao.strategy';
 import { NaverStrategy } from './naver.strategy';
 import { GoogleStrategy } from './google.strategy';
+import { JwtStrategy } from './jwt.strategy';
+import { JwtRefreshStrategy } from './jwt-refresh.strategy';
 
 import dotenv from 'dotenv';
 dotenv.config();
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Users]),
-    JwtModule.register({
-      // 그냥 process.env.JWT_SECRET라고 적으면 인식 불가
-      secret: `${process.env.JWT_SECRET}`,
-    }),
-  ],
+  imports: [TypeOrmModule.forFeature([Users]), JwtModule.register({})],
   exports: [JwtModule],
   controllers: [AuthController],
-  providers: [AuthService, KakaoStrategy, NaverStrategy, GoogleStrategy],
+  providers: [
+    UserService,
+    AuthService,
+    KakaoStrategy,
+    NaverStrategy,
+    GoogleStrategy,
+    JwtStrategy,
+    JwtRefreshStrategy,
+  ],
 })
 export class AuthModule {}
