@@ -1,25 +1,5 @@
-import {
-  Body,
-  Controller,
-  ForbiddenException,
-  NotFoundException,
-  Post,
-  Put,
-  Get,
-  Req,
-  UseGuards,
-  Res,
-} from '@nestjs/common';
-import {
-  ApiBody,
-  ApiHeader,
-  ApiOperation,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
-import { Public } from 'src/auth/skip-auth.decorator';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { Request, Response } from 'express';
+import { Body, Controller, Put } from '@nestjs/common';
+import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SetNicknameRequestDto } from './dto/setNickname.request.dto';
 import { UserService } from './user.service';
 
@@ -28,18 +8,6 @@ import { UserService } from './user.service';
 @Controller('api/user')
 export class UserController {
   constructor(private usersService: UserService) {}
-
-  @Public()
-  // @UseGuards(JwtAuthGuard)
-  @Get('/test')
-  async test(@Res() res: Response) {}
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/test2')
-  async test2(@Req() req, @Res() res: Response) {
-    console.log('req.user in user:', req.user);
-    res.send('hi');
-  }
 
   @Put('/nickname')
   @ApiOperation({ summary: '회원가입 후 닉네임 설정하기' })

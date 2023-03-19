@@ -1,7 +1,13 @@
 import { Request, Response } from 'express';
 
 import { Controller, Get, HttpException, Post } from '@nestjs/common';
-import { HttpCode, Req, Res, UseGuards } from '@nestjs/common/decorators';
+import {
+  HttpCode,
+  Redirect,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common/decorators';
 import { HttpStatus } from '@nestjs/common/enums';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -53,20 +59,31 @@ export class AuthController {
       'kakao',
     );
 
-    res.cookie('Authentication', result.accessToken, {
-      domain: 'localhost',
-      path: '/',
-      httpOnly: true,
-    });
-    res.cookie('Refresh', result.refreshToken, {
-      domain: 'localhost',
-      path: '/',
-      httpOnly: true,
-    });
+    if (result.newUser) {
+      res
+        .cookie('Authentication', result.accessToken, {
+          expires: new Date(Date.now() + 900000),
+          maxAge: 900000,
+          httpOnly: false,
+        })
+        .cookie('Refresh', result.refreshToken, {
+          expires: new Date(Date.now() + 900000),
+          maxAge: 900000,
+          httpOnly: false,
+        })
+        .redirect(301, `${process.env.FRONT_PORT}`);
+    }
 
-    return res.redirect(
-      `${process.env.FRONT_PORT}/loginSuccess/?newUser=${result.newUser}`,
-    );
+    res
+      .cookie('Authentication', result.accessToken, {
+        maxAge: 900000,
+        httpOnly: false,
+      })
+      .cookie('Refresh', result.refreshToken, {
+        maxAge: 900000,
+        httpOnly: false,
+      })
+      .redirect(301, `${process.env.FRONT_PORT}`);
   }
 
   @ApiOperation({

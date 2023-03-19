@@ -6,7 +6,10 @@ import {
   Get,
   Put,
   UseGuards,
+  Res,
+  Redirect,
 } from '@nestjs/common';
+import { Response } from 'express';
 
 import { makeScheduleRequestDto } from './dto/makeSchedule.request.dto';
 import { updateScheduleRequestDto } from './dto/updateSchedule.request.dto';
@@ -14,9 +17,12 @@ import { getScheduleRequestDto } from './dto/getSchedule.request.dto';
 import { scheduleResponseDto } from './dto/schedule.response.dto';
 
 import { ScheduleService } from './schedule.service';
-import { UserService } from '../user/user.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Public } from 'src/auth/skip-auth.decorator';
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 @ApiTags('schedule')
 @Controller('api/schedule')
