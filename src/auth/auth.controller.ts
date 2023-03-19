@@ -1,14 +1,25 @@
-import { Controller, Get, HttpException } from '@nestjs/common';
-import { HttpCode, Req, Res, UseGuards } from '@nestjs/common/decorators';
 import { Request, Response } from 'express';
+
+import { Controller, Get, HttpException, Post } from '@nestjs/common';
+import {
+  HttpCode,
+  Redirect,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common/decorators';
 import { HttpStatus } from '@nestjs/common/enums';
-import { AuthGuard } from '@nestjs/passport/dist';
-import { AuthService } from './auth.service';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { Public } from './skip-auth.decorator';
+import { AuthGuard } from '@nestjs/passport/dist';
+import { JwtRefreshGuard } from './jwt-refresh.gaurd';
+
+import { AuthService } from './auth.service';
+import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 
 import dotenv from 'dotenv';
-import querystring from 'querystring';
 dotenv.config();
 
 @ApiTags('auth')
@@ -16,6 +27,7 @@ dotenv.config();
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -25,41 +37,62 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description:
-      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
+      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 newUser이고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다. 토큰은 자동으로 cookie에 저장되도록 되어있습니다.',
   })
+  @Public()
   @Get('/login/kakao')
   @UseGuards(AuthGuard('kakao'))
   async loginKakao(@Req() req: Request) {
     return HttpStatus.OK;
   }
 
+  @Public()
   @Get('/kakao/redirect')
-  @HttpCode(200)
   @UseGuards(AuthGuard('kakao'))
-  async kakaoRedirect(@Req() req: Request, @Res() res: Response) {
+  async kakaoRedirect(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.validateUser(
       req.user.email,
       req.user.socialId,
       'kakao',
     );
 
-    const query = querystring.stringify({
-      id: result.userData.id,
-      nickname: result.userData.nickname,
-      email: result.userData.email,
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-      newUser: result.newUser,
-    });
+    if (result.newUser) {
+      res
+        .cookie('Authentication', result.accessToken, {
+          expires: new Date(Date.now() + 900000),
+          maxAge: 900000,
+          httpOnly: false,
+        })
+        .cookie('Refresh', result.refreshToken, {
+          expires: new Date(Date.now() + 900000),
+          maxAge: 900000,
+          httpOnly: false,
+        })
+        .redirect(301, `${process.env.FRONT_PORT}`);
+    }
 
-    return res.redirect(`${process.env.FRONT_PORT}/loginSuccess?` + query);
+    res
+      .cookie('Authentication', result.accessToken, {
+        maxAge: 900000,
+        httpOnly: false,
+      })
+      .cookie('Refresh', result.refreshToken, {
+        maxAge: 900000,
+        httpOnly: false,
+      })
+      .redirect(301, `${process.env.FRONT_PORT}`);
   }
 
-  @ApiOperation({ summary: '네이버 로그인 api' })
+  @ApiOperation({
+    summary: '네이버 로그인 api',
+  })
   @ApiResponse({
     status: 200,
     description:
-      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
+      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 newUser이고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다. 토큰은 자동으로 cookie에 저장되도록 되어있습니다.',
   })
   @Get('/login/naver')
   @UseGuards(AuthGuard('naver'))
@@ -76,23 +109,29 @@ export class AuthController {
       'naver',
     );
 
-    const query = querystring.stringify({
-      id: result.userData.id,
-      nickname: result.userData.nickname,
-      email: result.userData.email,
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-      newUser: result.newUser,
+    res.cookie('Authentication', result.accessToken, {
+      domain: 'localhost',
+      path: '/',
+      httpOnly: true,
+    });
+    res.cookie('Refresh', result.refreshToken, {
+      domain: 'localhost',
+      path: '/',
+      httpOnly: true,
     });
 
-    return res.redirect(`${process.env.FRONT_PORT}/loginSuccess?` + query);
+    return res.redirect(
+      `${process.env.FRONT_PORT}/loginSuccess/?newUser=${result.newUser}`,
+    );
   }
 
-  @ApiOperation({ summary: '구글 로그인 api' })
+  @ApiOperation({
+    summary: '구글 로그인 api',
+  })
   @ApiResponse({
     status: 200,
     description:
-      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 id/nickname/email/accessToken/refreshToken/newUser이므로 추출하여 저장하고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다.',
+      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 newUser이고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다. 토큰은 자동으로 cookie에 저장되도록 되어있습니다.',
   })
   @Get('/login/google')
   @UseGuards(AuthGuard('google'))
@@ -109,53 +148,39 @@ export class AuthController {
       'google',
     );
 
-    const query = querystring.stringify({
-      id: result.userData.id,
-      nickname: result.userData.nickname,
-      email: result.userData.email,
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-      newUser: result.newUser,
+    res.cookie('Authentication', result.accessToken, {
+      domain: 'localhost',
+      path: '/',
+      httpOnly: true,
+    });
+    res.cookie('Refresh', result.refreshToken, {
+      domain: 'localhost',
+      path: '/',
+      httpOnly: true,
     });
 
-    return res.redirect(`${process.env.FRONT_PORT}/loginSuccess?` + query);
+    return res.redirect(
+      `${process.env.FRONT_PORT}/loginSuccess/?newUser=${result.newUser}`,
+    );
   }
 
-  @ApiOperation({ summary: 'refresh Token' })
-  @Get('/refresh')
-  @ApiHeader({ name: 'refresh', description: 'refresh token' })
-  async refreshToken(@Req() req: Request, @Res() res: Response) {
-    if ('refresh' in req.headers) {
-      const token = req.headers['refresh'];
-      try {
-        const decoded = this.jwtService.verify(token.toString());
-        if (
-          typeof decoded === 'object' &&
-          decoded.hasOwnProperty('userEmail')
-        ) {
-          const accessToken = this.jwtService.sign({
-            userEmail: decoded.userEmail,
-          });
-          return { success: true, acessToken: accessToken };
-        }
-      } catch (error) {
-        if (error.message === 'jwt expired') {
-          throw new HttpException(
-            'refresh token expired login again',
-            HttpStatus.UNAUTHORIZED,
-          );
-        } else {
-          throw new HttpException('INVALID TOKEN', HttpStatus.UNAUTHORIZED);
-        }
-      }
-    } else {
-      throw new HttpException('NO TOKEN', HttpStatus.UNAUTHORIZED);
-    }
+  @Public()
+  @UseGuards(JwtRefreshGuard)
+  @Post('/refresh')
+  refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const accessToken = this.authService.reIssueAccessToken(req.userId);
+    res.cookie('Authentication', accessToken);
+    return 'success';
   }
 
-  @Get('/logout')
+  @Public()
+  @UseGuards(JwtRefreshGuard)
+  @Post('/logout')
   @ApiHeader({ name: 'access', description: 'access token' })
   async logOut(@Req() req: Request, @Res() res: Response) {
-    return await this.authService.deleteRefreshToken(req.userEmail);
+    await this.userService.removeRefreshToken(req.userId);
+    res.cookie('Authentication', '');
+    res.cookie('Refresh', '');
+    return 'success';
   }
 }

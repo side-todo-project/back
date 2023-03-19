@@ -1,4 +1,15 @@
-import { Controller, Body, Post, Req, Get, Put } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Post,
+  Req,
+  Get,
+  Put,
+  UseGuards,
+  Res,
+  Redirect,
+} from '@nestjs/common';
+import { Response } from 'express';
 
 import { makeScheduleRequestDto } from './dto/makeSchedule.request.dto';
 import { updateScheduleRequestDto } from './dto/updateSchedule.request.dto';
@@ -7,17 +18,19 @@ import { scheduleResponseDto } from './dto/schedule.response.dto';
 import { checkScheduleRequestDto } from './dto/checkSchedule.request.dto';
 
 import { ScheduleService } from './schedule.service';
-import { UserService } from '../user/user.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Public } from 'src/auth/skip-auth.decorator';
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 @ApiTags('schedule')
 @Controller('api/schedule')
 export class ScheduleController {
-  constructor(
-    private scheduleService: ScheduleService,
-    private userService: UserService,
-  ) {}
+  constructor(private scheduleService: ScheduleService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('/')
   @ApiOperation({ summary: '일정 생성하기' })
   @ApiBody({ type: makeScheduleRequestDto })
@@ -27,10 +40,8 @@ export class ScheduleController {
     type: scheduleResponseDto,
   })
   async setSchedule(@Req() req, @Body() data: makeScheduleRequestDto) {
-    const userId = await this.userService.findUserByEmail(req.userEmail);
-
     return this.scheduleService.setSchedule(
-      userId,
+      req.userId,
       data.scheduleDate,
       data.schedule,
       data.isPrivate,
@@ -38,6 +49,7 @@ export class ScheduleController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('/')
   @ApiOperation({ summary: '일정 가져오기' })
   @ApiBody({ type: getScheduleRequestDto })
@@ -47,10 +59,10 @@ export class ScheduleController {
     type: scheduleResponseDto,
   })
   async getSchedule(@Req() req, @Body() data: getScheduleRequestDto) {
-    const userId = await this.userService.findUserByEmail(req.userEmail);
-    return this.scheduleService.getSchedule(userId, data.scheduleDate);
+    return this.scheduleService.getSchedule(req.userId, data.scheduleDate);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put('/')
   @ApiOperation({ summary: '일정 수정하기' })
   @ApiBody({ type: updateScheduleRequestDto })
@@ -60,10 +72,8 @@ export class ScheduleController {
     type: scheduleResponseDto,
   })
   async updateSchedule(@Req() req, @Body() data: updateScheduleRequestDto) {
-    const userId = await this.userService.findUserByEmail(req.userEmail);
-
     return this.scheduleService.updateSchedule(
-      userId,
+      req.userId,
       data.scheduleId,
       data.schedule,
       data.isPrivate,

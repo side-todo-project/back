@@ -23,15 +23,23 @@ import { UserService } from './user/user.service';
 
 //middleware
 import ormconfig from '../ormconfig';
-import { JwtMiddleware } from './middlewares/jwt.middleware';
 
 //entities
 import { Users } from './entities/user';
 import { Schedules } from './entities/schedule';
 
+//Guard
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+
 @Module({
   controllers: [AppController, AuthController, UserController],
-  providers: [AppService, AuthService, UserService],
+  providers: [
+    AppService,
+    AuthService,
+    UserService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+  ],
   imports: [
     UserModule,
     ScheduleModule,
@@ -42,11 +50,4 @@ import { Schedules } from './entities/schedule';
     TypeOrmModule.forFeature([Users, Schedules]),
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).forRoutes({
-      path: 'api/*', // 특정 path 혹은 method에 대해서만 적용 시킬수도 있다.
-      method: RequestMethod.ALL,
-    });
-  }
-}
+export class AppModule {}

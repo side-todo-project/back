@@ -1,45 +1,74 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/user';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+
+import { JwtService } from '@nestjs/jwt';
+import { UserService } from '../user/user.service';
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 @Injectable()
 export class AuthService {
   constructor(
-    private dataSource: DataSource,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
     @InjectRepository(Users) private usersRepository: Repository<Users>,
   ) {}
 
-  async validateUser(email: string, socialId: string, provider: string) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+  async reIssueAccessToken(userId: number) {
+    const accessToken = this.jwtService.sign(
+      {
+        userId: userId,
+      },
+      {
+        expiresIn: `${process.env.JWT_EXPIRATION_TIME}s`,
+        secret: process.env.REFRESH_SECRET,
+      },
+    );
+    return accessToken;
+  }
 
-    const user = await queryRunner.manager
-      .getRepository(Users)
-      .findOne({ where: { email } });
+  async validateUser(email: string, socialId: string, provider: string) {
+    const user = await this.usersRepository.findOne({
+      where: { email: email },
+    });
 
     if (user) {
       const accessToken = this.jwtService.sign(
         {
-          userEmail: email,
+          userId: user.id,
         },
-        { expiresIn: `${process.env.JWT_EXPIRATION_TIME}s` },
+        {
+          expiresIn: `${process.env.JWT_EXPIRATION_TIME}s`,
+          secret: process.env.ACCESS_SECRET,
+        },
       );
+
+      const refreshToken = this.jwtService.sign(
+        {
+          userId: user.id,
+        },
+        {
+          expiresIn: `${process.env.REFRESH_EXPIRATION_TIME}s`,
+          secret: process.env.REFRESH_SECRET,
+        },
+      );
+
+      await this.userService.updateRefreshToken(refreshToken, user.id);
 
       if (user.nickname === null) {
         return {
           userData: user,
-          refreshToken: user.refreshToken,
+          refreshToken: refreshToken,
           accessToken: accessToken,
           newUser: true,
         };
       } else {
         return {
-          userData: user,
-          refreshToken: user.refreshToken,
+          refreshToken: refreshToken,
           accessToken: accessToken,
           newUser: false,
         };
@@ -47,60 +76,41 @@ export class AuthService {
     }
 
     try {
+      const newUser = new Users();
+      newUser.email = email;
+      newUser.nickname = '';
+      newUser.socialId = socialId;
+      newUser.provider = provider;
+      newUser.cash = 0;
+      await this.usersRepository.save(newUser);
+
+      const accessToken = this.jwtService.sign(
+        { userId: newUser.id },
+        {
+          expiresIn: `${process.env.REFRESH_EXPIRATION_TIME}s`,
+          secret: process.env.ACCESS_SECRET,
+        },
+      );
       const refreshToken = this.jwtService.sign(
         {
-          userEmail: email,
+          userId: newUser.id,
         },
-        { expiresIn: `${process.env.REFRESH_EXPIRATION_TIME}s` },
+        {
+          expiresIn: `${process.env.REFRESH_EXPIRATION_TIME}s`,
+          secret: process.env.REFRESH_SECRET,
+        },
       );
 
-      const newUser = await queryRunner.manager.getRepository(Users).save({
-        email,
-        socialId,
-        nickname: '',
-        provider: provider,
-        refreshToken: refreshToken,
-        cash: 0,
-      });
-      const token = this.jwtService.sign({ userEmail: email });
+      await this.userService.updateRefreshToken(refreshToken, newUser.id);
 
-      await queryRunner.commitTransaction();
       return {
-        userData: newUser,
         refreshToken: refreshToken,
-        accessToken: token,
+        accessToken: accessToken,
         newUser: true,
       };
     } catch (error) {
       console.error(error);
-      await queryRunner.rollbackTransaction();
       throw error;
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  async deleteRefreshToken(email: string) {
-    const user = await this.usersRepository.findOne({
-      where: { email: email },
-    });
-
-    if (user) {
-      try {
-        await this.dataSource
-          .createQueryBuilder()
-          .update(Users)
-          .set({
-            refrshToken: '',
-          })
-          .where({ email: email })
-          .execute();
-
-        return { success: true };
-      } catch (error) {
-        console.error(error);
-        throw error;
-      }
     }
   }
 }

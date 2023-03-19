@@ -1,21 +1,5 @@
-import {
-  Body,
-  Controller,
-  ForbiddenException,
-  NotFoundException,
-  Post,
-  Put,
-  Get,
-  Req,
-} from '@nestjs/common';
-import {
-  ApiBody,
-  ApiHeader,
-  ApiOperation,
-  ApiParam,
-  ApiTags,
-} from '@nestjs/swagger';
-
+import { Body, Controller, Put } from '@nestjs/common';
+import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SetNicknameRequestDto } from './dto/setNickname.request.dto';
 import { UserService } from './user.service';
 

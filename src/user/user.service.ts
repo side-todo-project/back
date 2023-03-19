@@ -8,6 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/user';
 import { DataSource, Repository } from 'typeorm';
+import { compare, hash } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -15,13 +16,37 @@ export class UserService {
     private dataSource: DataSource,
     @InjectRepository(Users) private usersRepository: Repository<Users>,
   ) {}
-  async findUserByEmail(userEmail: string) {
+
+  async updateRefreshToken(refreshToken: string, userId: number) {
+    const hashedRefreshToken = await hash(refreshToken, 10);
+    await this.usersRepository.update(userId, {
+      refreshToken: hashedRefreshToken,
+    });
+  }
+
+  async checkRefreshTokenValidate(refreshToken: string, userId: number) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+
+    const check = await compare(refreshToken, user.refreshToken);
+
+    if (check) {
+      return user.id;
+    }
+  }
+
+  async removeRefreshToken(userId: number) {
+    return this.usersRepository.update(userId, {
+      refreshToken: null,
+    });
+  }
+
+  async findUserById(userId: number) {
     const user = await this.usersRepository.findOne({
-      where: { email: userEmail },
+      where: { id: userId },
     });
 
     if (!user) {
-      throw new HttpException('INVALID USER', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('INVALID USER', HttpStatus.NOT_FOUND);
     }
 
     return user.id;
