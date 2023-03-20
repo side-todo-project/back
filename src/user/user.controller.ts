@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Put, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SetNicknameRequestDto } from './dto/setNickname.request.dto';
 import { UserService } from './user.service';
@@ -18,10 +18,18 @@ export class UserController {
     return this.usersService.setNickname(data.email, data.nickname);
   }
 
+  @Get('/info')
+  @ApiOperation({ summary: '다른 유저 정보 보여주기' })
+  @ApiBody({ type: UserInfoRequestDto })
+  async infoOther(@Body() data: UserInfoRequestDto) {
+    return this.usersService.getUserInfo(data.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOperation({ summary: '유저 정보 보여주기' })
   @ApiBody({ type: UserInfoRequestDto })
-  async info(@Body() data: UserInfoRequestDto) {
-    return this.usersService.getUserInfo(data.id);
+  async info(@Req() req) {
+    return this.usersService.getUserInfo(req.id);
   }
 }
