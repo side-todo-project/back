@@ -1,13 +1,7 @@
 import { Request, Response } from 'express';
 
 import { Controller, Get, HttpException, Post } from '@nestjs/common';
-import {
-  HttpCode,
-  Redirect,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common/decorators';
+import { Req, Res, UseGuards } from '@nestjs/common/decorators';
 import { HttpStatus } from '@nestjs/common/enums';
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -64,12 +58,12 @@ export class AuthController {
         .cookie('Authentication', result.accessToken, {
           expires: new Date(Date.now() + 900000),
           maxAge: 900000,
-          httpOnly: false,
+          httpOnly: true,
         })
         .cookie('Refresh', result.refreshToken, {
           expires: new Date(Date.now() + 900000),
           maxAge: 900000,
-          httpOnly: false,
+          httpOnly: true,
         })
         .redirect(301, `${process.env.FRONT_PORT}`);
     }
@@ -77,11 +71,11 @@ export class AuthController {
     res
       .cookie('Authentication', result.accessToken, {
         maxAge: 900000,
-        httpOnly: false,
+        httpOnly: true,
       })
       .cookie('Refresh', result.refreshToken, {
         maxAge: 900000,
-        httpOnly: false,
+        httpOnly: true,
       })
       .redirect(301, `${process.env.FRONT_PORT}`);
   }
@@ -168,8 +162,8 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @Post('/refresh')
   refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const accessToken = this.authService.reIssueAccessToken(req.userId);
-    res.cookie('Authentication', accessToken);
+    const accessToken = this.authService.reIssueAccessToken(req.user.userId);
+    res.cookie('Authentication', accessToken, { httpOnly: true });
     return 'success';
   }
 
@@ -178,9 +172,18 @@ export class AuthController {
   @Post('/logout')
   @ApiHeader({ name: 'access', description: 'access token' })
   async logOut(@Req() req: Request, @Res() res: Response) {
-    await this.userService.removeRefreshToken(req.userId);
-    res.cookie('Authentication', '');
-    res.cookie('Refresh', '');
-    return 'success';
+    await this.userService.removeRefreshToken(req.user.userId);
+    console.log('here');
+    return res
+      .cookie('Authentication', 'none', {
+        domain: 'localhost',
+        path: '/',
+        httpOnly: true,
+      })
+      .cookie('Refresh', 'none', {
+        domain: 'localhost',
+        path: '/',
+        httpOnly: true,
+      });
   }
 }

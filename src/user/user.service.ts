@@ -27,17 +27,25 @@ export class UserService {
   async checkRefreshTokenValidate(refreshToken: string, userId: number) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
 
+    console.log(user);
     const check = await compare(refreshToken, user.refreshToken);
 
     if (check) {
       return user.id;
     }
+    console.log('fail');
   }
 
   async removeRefreshToken(userId: number) {
-    return this.usersRepository.update(userId, {
-      refreshToken: null,
-    });
+    console.log(userId);
+
+    if (userId) {
+      return await this.usersRepository.update(userId, {
+        refreshToken: '',
+      });
+    } else {
+      throw new Error('fail');
+    }
   }
 
   async findUserById(userId: number) {
