@@ -31,7 +31,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description:
-      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 newUser이고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다. 토큰은 자동으로 cookie에 저장되도록 되어있습니다.',
+      '닉네임이 설정되어있다면 /로 없다면 /nickname으로 redirect됩니다! 토큰은 자동으로 header에 설정됩니다.',
   })
   @Public()
   @Get('/login/kakao')
@@ -61,20 +61,22 @@ export class AuthController {
           httpOnly: true,
         })
         .cookie('Refresh', result.refreshToken, {
-          expires: new Date(Date.now() + 900000),
-          maxAge: 900000,
+          expires: new Date(Date.now() + 90000000),
+          maxAge: 90000000,
           httpOnly: true,
         })
-        .redirect(301, `${process.env.FRONT_PORT}`);
+        .redirect(301, `${process.env.FRONT_PORT}/nickname`);
     }
 
     res
       .cookie('Authentication', result.accessToken, {
+        expires: new Date(Date.now() + 900000),
         maxAge: 900000,
         httpOnly: true,
       })
       .cookie('Refresh', result.refreshToken, {
-        maxAge: 900000,
+        expires: new Date(Date.now() + 90000000),
+        maxAge: 90000000,
         httpOnly: true,
       })
       .redirect(301, `${process.env.FRONT_PORT}`);
@@ -124,8 +126,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description:
-      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 newUser이고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다. 토큰은 자동으로 cookie에 저장되도록 되어있습니다.',
+    description: '',
   })
   @Get('/login/google')
   @UseGuards(AuthGuard('google'))
@@ -143,6 +144,7 @@ export class AuthController {
     );
 
     res.cookie('Authentication', result.accessToken, {
+      expires: new Date(Date.now() + 900000),
       domain: 'localhost',
       path: '/',
       httpOnly: true,
@@ -163,7 +165,10 @@ export class AuthController {
   @Post('/refresh')
   refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const accessToken = this.authService.reIssueAccessToken(req.user.userId);
-    res.cookie('Authentication', accessToken, { httpOnly: true });
+    res.cookie('Authentication', accessToken, {
+      httpOnly: true,
+      expires: new Date(Date.now() + 90000000),
+    });
     return 'success';
   }
 
@@ -171,19 +176,16 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @Post('/logout')
   @ApiHeader({ name: 'access', description: 'access token' })
-  async logOut(@Req() req: Request, @Res() res: Response) {
+  async logOut(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     await this.userService.removeRefreshToken(req.user.userId);
-    console.log('here');
-    return res
-      .cookie('Authentication', 'none', {
-        domain: 'localhost',
-        path: '/',
+
+    res
+      .cookie('Authentication', '', {
         httpOnly: true,
       })
-      .cookie('Refresh', 'none', {
-        domain: 'localhost',
-        path: '/',
+      .cookie('Refresh', '', {
         httpOnly: true,
       });
+    return res.send('success');
   }
 }

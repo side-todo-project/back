@@ -19,7 +19,6 @@ import { scheduleResponseDto } from './dto/schedule.response.dto';
 import { ScheduleService } from './schedule.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { Public } from 'src/auth/skip-auth.decorator';
 
 import dotenv from 'dotenv';
 dotenv.config();
