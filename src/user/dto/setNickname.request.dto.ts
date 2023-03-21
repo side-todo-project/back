@@ -8,15 +8,6 @@ import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 // 왜? 클래스는 JavaScript ES6 표준의 일부이므로 컴파일된 JavaScript에서 실제 엔터티로 보존됩니다.
 // 반면 TypeScript 인터페이스는 변환 중에 제거되기 때문에 Nest는 런타임에 이를 참조할 수 없습니다.
 export class SetNicknameRequestDto {
-  @IsEmail()
-  @IsNotEmpty()
-  @ApiProperty({
-    name: 'emali',
-    description: '유저 이메일',
-    example: 'test@naver.com',
-  })
-  public email: string;
-
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)

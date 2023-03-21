@@ -35,7 +35,7 @@ export class Users {
   @Column('int', { name: 'cash' })
   cash: number;
 
-  @Column('varchar', { name: 'refreshToken', length: 20 })
+  @Column('varchar', { name: 'refreshToken', length: 100 })
   refreshToken: string;
 
   @CreateDateColumn()

@@ -23,11 +23,16 @@ interface kakaoType {
     };
   };
 }
+
+const callbackURL =
+  process.env.NODE_ENV === 'prod'
+    ? `${process.env.DEV_SERVER_URL}${process.env.KAKAO_REDIRECT_URL}`
+    : `${process.env.PROD_SERVER_URL}${process.env.KAKAO_REDIRECT_URL}`;
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
   constructor() {
     super({
       clientID: process.env.KAKAO_CLIENT_ID,
-      callbackURL: process.env.KAKAO_REDIRECT_URL,
+      callbackURL: callbackURL,
     });
   }
 
