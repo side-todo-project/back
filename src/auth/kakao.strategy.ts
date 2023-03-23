@@ -26,8 +26,8 @@ interface kakaoType {
 
 const callbackURL =
   process.env.NODE_ENV === 'prod'
-    ? `${process.env.DEV_SERVER_URL}${process.env.KAKAO_REDIRECT_URL}`
-    : `${process.env.PROD_SERVER_URL}${process.env.KAKAO_REDIRECT_URL}`;
+    ? `${process.env.PROD_SERVER_URL}${process.env.KAKAO_REDIRECT_URL}`
+    : `${process.env.DEV_SERVER_URL}${process.env.KAKAO_REDIRECT_URL}`;
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
   constructor() {
     super({
@@ -46,6 +46,7 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     const socialId = profileJson.id;
     const email = profileJson.kakao_account.email;
 
+    console.log(callbackURL);
     const user = {
       socialId: socialId,
       email: email,
