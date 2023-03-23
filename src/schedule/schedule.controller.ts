@@ -15,6 +15,7 @@ import { makeScheduleRequestDto } from './dto/makeSchedule.request.dto';
 import { updateScheduleRequestDto } from './dto/updateSchedule.request.dto';
 import { getScheduleRequestDto } from './dto/getSchedule.request.dto';
 import { scheduleResponseDto } from './dto/schedule.response.dto';
+import { checkScheduleRequestDto } from './dto/checkSchedule.request.dto';
 
 import { ScheduleService } from './schedule.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -83,6 +84,25 @@ export class ScheduleController {
       data.schedule,
       data.isPrivate,
       data.tags,
+    );
+  }
+
+  @Put('/check')
+  @ApiOperation({
+    summary: '완료된 일정 체크하기',
+    description:
+      '체크하거나 체크를 해제할 일정의 idx를 보내주시면 됩니다 idx는 0부터 시작입니다.',
+  })
+  @ApiBody({ type: checkScheduleRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: scheduleResponseDto,
+  })
+  async checkSchedule(@Req() req, @Body() data: checkScheduleRequestDto) {
+    return this.scheduleService.checkSchedule(
+      data.scheduleId,
+      data.scheduleIdx,
     );
   }
 }
