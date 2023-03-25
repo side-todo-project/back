@@ -22,6 +22,7 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 import dotenv from 'dotenv';
+import { latestScheduleResponseDto } from './dto/latestSchedule.response.dto';
 dotenv.config();
 
 @ApiTags('schedule')
@@ -104,5 +105,19 @@ export class ScheduleController {
       data.scheduleId,
       data.scheduleIdx,
     );
+  }
+
+  @Get('latest')
+  @ApiOperation({
+    summary: '공개된 최신 일정기불러오기',
+    description: '공개된 최신 일정을 최대 8개 불러옵니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: [latestScheduleResponseDto],
+  })
+  async getLatestSchedules() {
+    return this.scheduleService.getLatestSchedule();
   }
 }
