@@ -22,19 +22,29 @@ export class UserService {
   }
 
   async checkRefreshTokenValidate(refreshToken: string, userId: number) {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    try {
+      const user = await this.usersRepository.findOne({
+        where: { id: userId },
+      });
+      const check = await compare(refreshToken, user.refreshToken);
 
-    const check = await compare(refreshToken, user.refreshToken);
-
-    if (check) {
-      return user.id;
+      if (check) {
+        return user.id;
+      }
+      throw new HttpException('INVALID USER', HttpStatus.UNAUTHORIZED);
+    } catch (error) {
+      console.log(error);
     }
   }
 
   async removeRefreshToken(userId: number) {
-    return this.usersRepository.update(userId, {
-      refreshToken: null,
-    });
+    try {
+      await this.usersRepository.update(userId, {
+        refreshToken: '',
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async findUserById(userId: number) {
@@ -63,7 +73,7 @@ export class UserService {
     });
 
     if (!user) {
-      return { message: '존재하지 않는 사용자 입니다' };
+      throw new HttpException('INVALID USER', HttpStatus.NOT_FOUND);
     }
 
     try {
@@ -75,8 +85,6 @@ export class UserService {
         })
         .where({ email: email })
         .execute();
-
-      return { code: 200, success: true };
     } catch (error) {
       console.error(error);
       throw error;
