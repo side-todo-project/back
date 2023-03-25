@@ -126,4 +126,10 @@ export class ScheduleService {
       },
     });
   }
+
+  async getOtherSchedule(scheduleId: number) {
+    return await this.scheduleRepository.find({
+      where: { id: scheduleId, isPrivate: false },
+    });
+  }
 }

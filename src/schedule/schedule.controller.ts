@@ -23,6 +23,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 import dotenv from 'dotenv';
 import { latestScheduleResponseDto } from './dto/latestSchedule.response.dto';
+import { getOtherScheduleRequestDto } from './dto/getOtherSchedule.request.dto';
 dotenv.config();
 
 @ApiTags('schedule')
@@ -119,5 +120,18 @@ export class ScheduleController {
   })
   async getLatestSchedules() {
     return this.scheduleService.getLatestSchedule();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/')
+  @ApiOperation({ summary: '일정 가져오기' })
+  @ApiBody({ type: getOtherScheduleRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: '성공',
+    type: scheduleResponseDto,
+  })
+  async getOtherSchedule(@Req() req, @Body() data: getOtherScheduleRequestDto) {
+    return this.scheduleService.getOtherSchedule(data.scheduleId);
   }
 }
