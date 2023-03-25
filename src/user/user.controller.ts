@@ -3,7 +3,6 @@ import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { SetNicknameRequestDto } from './dto/setNickname.request.dto';
 import { UserService } from './user.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserInfoRequestDto } from './dto/userInfo.request.dto';
 
 @ApiTags('user')
