@@ -57,7 +57,7 @@ export class Users {
   @OneToMany(() => LikeHistory, (likeHistory) => likeHistory.UserId)
   LikeHistorys: LikeHistory[];
 
-  @ManyToMany(() => Users, (users) => users.id)
+  @ManyToMany(() => Users, (users) => users.followings)
   @JoinTable({
     name: 'Follow',
     joinColumn: {
@@ -69,5 +69,8 @@ export class Users {
       referencedColumnName: 'id',
     },
   })
-  Users: Users[];
+  followers: Users[];
+
+  @ManyToMany(() => Users, (users) => users.followers)
+  followings: Users[];
 }

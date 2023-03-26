@@ -15,10 +15,14 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtRefreshStrategy } from './jwt-refresh.strategy';
 
 import dotenv from 'dotenv';
+import { Schedules } from '../entities/schedule';
 dotenv.config();
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Users]), JwtModule.register({})],
+  imports: [
+    TypeOrmModule.forFeature([Users, Schedules]),
+    JwtModule.register({}),
+  ],
   exports: [JwtModule],
   controllers: [AuthController],
   providers: [

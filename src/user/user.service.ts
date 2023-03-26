@@ -1,4 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  Body,
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/user';
 import { DataSource, Repository } from 'typeorm';
@@ -11,20 +18,21 @@ export class UserService {
     private dataSource: DataSource,
     @InjectRepository(Users) private usersRepository: Repository<Users>,
     @InjectRepository(Schedules)
-    private scheduleRepository: Repository<Schedules>,
-  ) {}
+    private scheduleRepository: Repository<Schedules>
+  ) {
+  }
 
   async updateRefreshToken(refreshToken: string, userId: number) {
     const hashedRefreshToken = await hash(refreshToken, 10);
     await this.usersRepository.update(userId, {
-      refreshToken: hashedRefreshToken,
+      refreshToken: hashedRefreshToken
     });
   }
 
   async checkRefreshTokenValidate(refreshToken: string, userId: number) {
     try {
       const user = await this.usersRepository.findOne({
-        where: { id: userId },
+        where: { id: userId }
       });
       const check = await compare(refreshToken, user.refreshToken);
 
@@ -40,7 +48,7 @@ export class UserService {
   async removeRefreshToken(userId: number) {
     try {
       await this.usersRepository.update(userId, {
-        refreshToken: '',
+        refreshToken: ""
       });
     } catch (error) {
       console.log(error);
@@ -49,11 +57,11 @@ export class UserService {
 
   async findUserById(userId: number) {
     const user = await this.usersRepository.findOne({
-      where: { id: userId },
+      where: { id: userId }
     });
 
     if (!user) {
-      throw new HttpException('INVALID USER', HttpStatus.NOT_FOUND);
+      throw new HttpException("INVALID USER", HttpStatus.NOT_FOUND);
     }
 
     return user.id;
@@ -61,19 +69,19 @@ export class UserService {
 
   async setNickname(email: string, nickname: string) {
     const dupNickname = await this.usersRepository.findOne({
-      where: { nickname: nickname },
+      where: { nickname: nickname }
     });
 
     if (dupNickname) {
-      return { message: '이미 존재하는 닉네임입니다!' };
+      return { message: "이미 존재하는 닉네임입니다!" };
     }
 
     const user = await this.usersRepository.findOne({
-      where: { email: email },
+      where: { email: email }
     });
 
     if (!user) {
-      throw new HttpException('INVALID USER', HttpStatus.NOT_FOUND);
+      throw new HttpException("INVALID USER", HttpStatus.NOT_FOUND);
     }
 
     try {
@@ -81,7 +89,7 @@ export class UserService {
         .createQueryBuilder()
         .update(Users)
         .set({
-          nickname: nickname,
+          nickname: nickname
         })
         .where({ email: email })
         .execute();
@@ -97,11 +105,11 @@ export class UserService {
     });
 
     if (!user) {
-      return { message: '존재하지 않는 사용자 입니다.' };
+      return { message: "존재하지 않는 사용자 입니다." };
     }
 
     const schedules = await this.scheduleRepository.find({
-      where: { ScheduleOwnerId: userId },
+      where: { ScheduleOwnerId: userId }
     });
 
     let mosttags = [];
@@ -130,9 +138,57 @@ export class UserService {
     return {
       nickname: user.nickname,
       mosttags: mosttags,
-      introduction: 'description',
+      introduction: "description",
       schedcnt: scheduleCount,
-      schedcomplete: completedScheduleCount,
+      schedcomplete: completedScheduleCount
     };
+  }
+
+  async follow(followerId: number, followingId: number) {
+    try {
+      const me = await this.usersRepository.findOne({
+        where: { id: followerId }
+      });
+
+      const following = await this.usersRepository.findOne({
+        where: { id: followingId }
+      });
+
+      if (!me || !following) {
+        throw new NotFoundException("user is not found");
+      }
+
+      following.followers = [me];
+      await this.usersRepository.save(following);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async unfollow(followerId: number, followingId: number) {
+    try {
+      const me = await this.usersRepository.findOne({
+        where: { id: followerId }
+      });
+
+      const following = await this.usersRepository.findOne({
+        where: { id: followingId },
+        relations: ["followers"]
+      });
+
+      if (!me || !following) {
+        throw new NotFoundException("user is not found");
+      }
+
+      following.followers = following.followers.filter((follower) => {
+        return follower.id != followerId;
+      });
+
+      await this.usersRepository.save(following);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 }
