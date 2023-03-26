@@ -46,7 +46,6 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     const socialId = profileJson.id;
     const email = profileJson.kakao_account.email;
 
-    console.log(callbackURL);
     const user = {
       socialId: socialId,
       email: email,
