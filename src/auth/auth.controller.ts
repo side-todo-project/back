@@ -54,7 +54,7 @@ export class AuthController {
     );
 
     if (result.newUser) {
-      res
+      return res
         .cookie('Authentication', result.accessToken, {
           expires: new Date(Date.now() + 900000),
           maxAge: 900000,
@@ -68,7 +68,7 @@ export class AuthController {
         .redirect(301, `${process.env.FRONT_PORT}/nickname`);
     }
 
-    res
+    return res
       .cookie('Authentication', result.accessToken, {
         expires: new Date(Date.now() + 900000),
         maxAge: 900000,
@@ -88,37 +88,55 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description:
-      'localhost:3030/loginSuccess 페이지로 redirect됩니다. params는 newUser이고 newUser가 true인 경우 닉네임이 설정되지 않은 경우이므로 api/user/nickname으로 닉네임 설정해주시고 설정되어있다면 mainPage로 넘어가시면 됩니다. 토큰은 자동으로 cookie에 저장되도록 되어있습니다.',
+      '닉네임이 설정되어있다면 /로 없다면 /nickname으로 redirect됩니다! 토큰은 자동으로 header에 설정됩니다.',
   })
+  @Public()
   @Get('/login/naver')
   @UseGuards(AuthGuard('naver'))
   async loginNaver(@Req() req: Request) {
     return HttpStatus.OK;
   }
 
+  @Public()
   @Get('/naver/redirect')
   @UseGuards(AuthGuard('naver'))
-  async naverRedirect(@Req() req: Request, @Res() res: Response) {
+  async naverRedirect(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.validateUser(
       req.user.email,
       req.user.socialId,
       'naver',
     );
 
-    res.cookie('Authentication', result.accessToken, {
-      domain: 'localhost',
-      path: '/',
-      httpOnly: true,
-    });
-    res.cookie('Refresh', result.refreshToken, {
-      domain: 'localhost',
-      path: '/',
-      httpOnly: true,
-    });
+    if (result.newUser) {
+      return res
+        .cookie('Authentication', result.accessToken, {
+          expires: new Date(Date.now() + 900000),
+          maxAge: 900000,
+          httpOnly: true,
+        })
+        .cookie('Refresh', result.refreshToken, {
+          expires: new Date(Date.now() + 90000000),
+          maxAge: 90000000,
+          httpOnly: true,
+        })
+        .redirect(301, `${process.env.FRONT_PORT}/nickname`);
+    }
 
-    return res.redirect(
-      `${process.env.FRONT_PORT}/loginSuccess/?newUser=${result.newUser}`,
-    );
+    return res
+      .cookie('Authentication', result.accessToken, {
+        expires: new Date(Date.now() + 900000),
+        maxAge: 900000,
+        httpOnly: true,
+      })
+      .cookie('Refresh', result.refreshToken, {
+        expires: new Date(Date.now() + 90000000),
+        maxAge: 90000000,
+        httpOnly: true,
+      })
+      .redirect(301, `${process.env.FRONT_PORT}`);
   }
 
   @ApiOperation({
@@ -126,14 +144,16 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description: '',
+    description: '닉네임이 설정되어있다면 /로 없다면 /nickname으로 redirect됩니다! 토큰은 자동으로 header에 설정됩니다.',
   })
+  @Public()
   @Get('/login/google')
   @UseGuards(AuthGuard('google'))
   async loginGoogle(@Req() req: Request) {
     return HttpStatus.OK;
   }
 
+  @Public()
   @Get('/google/redirect')
   @UseGuards(AuthGuard('google'))
   async googleRedirect(@Req() req: Request, @Res() res: Response) {
@@ -143,21 +163,33 @@ export class AuthController {
       'google',
     );
 
-    res.cookie('Authentication', result.accessToken, {
-      expires: new Date(Date.now() + 900000),
-      domain: 'localhost',
-      path: '/',
-      httpOnly: true,
-    });
-    res.cookie('Refresh', result.refreshToken, {
-      domain: 'localhost',
-      path: '/',
-      httpOnly: true,
-    });
+    if (result.newUser) {
+      return res
+        .cookie('Authentication', result.accessToken, {
+          expires: new Date(Date.now() + 900000),
+          maxAge: 900000,
+          httpOnly: true,
+        })
+        .cookie('Refresh', result.refreshToken, {
+          expires: new Date(Date.now() + 90000000),
+          maxAge: 90000000,
+          httpOnly: true,
+        })
+        .redirect(301, `${process.env.FRONT_PORT}/nickname`);
+    }
 
-    return res.redirect(
-      `${process.env.FRONT_PORT}/loginSuccess/?newUser=${result.newUser}`,
-    );
+    return res
+      .cookie('Authentication', result.accessToken, {
+        expires: new Date(Date.now() + 900000),
+        maxAge: 900000,
+        httpOnly: true,
+      })
+      .cookie('Refresh', result.refreshToken, {
+        expires: new Date(Date.now() + 90000000),
+        maxAge: 90000000,
+        httpOnly: true,
+      })
+      .redirect(301, `${process.env.FRONT_PORT}`);
   }
 
   @Public()

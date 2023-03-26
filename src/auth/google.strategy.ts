@@ -3,12 +3,16 @@ import { Strategy, Profile } from 'passport-google-oauth20';
 import dotenv from 'dotenv';
 dotenv.config();
 
+const callbackURL =
+  process.env.NODE_ENV === 'prod'
+    ? `${process.env.PROD_SERVER_URL}${process.env.GOOGLE_CALLBACK_URL}`
+    : `${process.env.DEV_SERVER_URL}${process.env.GOOGLE_CALLBACK_URL}`;
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor() {
     super({
       clientID: `${process.env.GOOGLE_CLIENT_ID}`,
       clientSecret: `${process.env.GOOGLE_CLIENT_SECRET}`,
-      callbackURL: `${process.env.GOOGLE_CALLBACK_URL}`,
+      callbackURL: callbackURL,
       scope: ['profile', 'email'],
     });
   }
