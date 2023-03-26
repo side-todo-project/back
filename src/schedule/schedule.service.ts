@@ -116,4 +116,20 @@ export class ScheduleService {
       throw error;
     }
   }
+
+  async getLatestSchedule() {
+    return await this.scheduleRepository.find({
+      where: { isPrivate: false },
+      take: 8,
+      order: {
+        id: 'DESC',
+      },
+    });
+  }
+
+  async getOtherSchedule(scheduleId: number) {
+    return await this.scheduleRepository.find({
+      where: { id: scheduleId, isPrivate: false },
+    });
+  }
 }
