@@ -35,8 +35,8 @@ export class UserController {
   @Post('/unfollow')
   @ApiOperation({ summary: '유저 언팔로우 하기' })
   @ApiBody({ type: SetNicknameRequestDto })
-  async unfollow(@Req() req, @Body() data) {
-    await this.usersService.unfollow(data.follower, data.following);
+  async unfollow(@Req() req, @Body() data: followRequestDto) {
+    await this.usersService.unfollow(req.userId, data.userId);
     return 'success';
   }
 }
