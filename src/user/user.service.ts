@@ -3,8 +3,8 @@ import {
   ForbiddenException,
   HttpException,
   HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+  Injectable, NotFoundException
+} from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/user';
 import { DataSource, Repository } from 'typeorm';
@@ -88,6 +88,52 @@ export class UserService {
         })
         .where({ email: email })
         .execute();
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async follow(followerId: number, followingId: number) {
+    try {
+      const me = await this.usersRepository.findOne({
+        where: { id: followerId },
+      });
+
+      const following = await this.usersRepository.findOne({
+        where: { id: followingId },
+      });
+
+      if (!me || !following) {
+        throw new NotFoundException('user is not found');
+      }
+
+      following.followers = [me];
+      await this.usersRepository.save(following);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async unfollow(followerId: number, followingId: number) {
+    try {
+      const me = await this.usersRepository.findOne({
+        where: { id: followerId },
+      });
+
+      const following = await this.usersRepository.findOne({
+        where: { id: followingId },
+      });
+
+      if (!me || !following) {
+        throw new NotFoundException('user is not found');
+      }
+
+      console.log(following);
+      // following.followers = following.followers.filter((follower) => {
+      //   return follower != me;
+      // });
     } catch (error) {
       console.error(error);
       throw error;

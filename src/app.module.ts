@@ -31,6 +31,7 @@ import { Schedules } from './entities/schedule';
 //Guard
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { ScheduleService } from "./schedule/schedule.service";
 
 @Module({
   controllers: [AppController, AuthController, UserController],
@@ -38,6 +39,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
     AppService,
     AuthService,
     UserService,
+    ScheduleService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
   ],
   imports: [
