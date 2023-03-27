@@ -144,6 +144,42 @@ export class UserService {
     };
   }
 
+  async getFollower(myId: number) {
+    try {
+      const me = await this.usersRepository.findOne({
+        where: { id: myId },
+        relations: ['followers'],
+      });
+
+      if (!me) {
+        throw new NotFoundException('user is not found');
+      }
+
+      return me.followers;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async getFollowing(myId: number) {
+    try {
+      const me = await this.usersRepository.findOne({
+        where: { id: myId },
+        relations: ['followings'],
+      });
+
+      if (!me) {
+        throw new NotFoundException('user is not found');
+      }
+
+      return me.followings;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   async follow(followerId: number, followingId: number) {
     try {
       const me = await this.usersRepository.findOne({

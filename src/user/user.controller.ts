@@ -11,9 +11,11 @@ import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Public } from 'src/auth/skip-auth.decorator';
 import { UserService } from './user.service';
-import { UserInfoRequestDto } from './dto/userInfo.request.dto';
-import { SetNicknameRequestDto } from './dto/setNickname.request.dto';
-import { followRequestDto } from './dto/follow.request.dto';
+import { UserInfoRequestDto } from './request.dto/userInfo.request.dto';
+import { SetNicknameRequestDto } from './request.dto/setNickname.request.dto';
+import { followRequestDto } from './request.dto/follow.request.dto';
+import { followerDto } from "./response.dto/follower.response.dto";
+import { followingDto } from "./response.dto/following.response.dto";
 
 @ApiTags('user')
 @ApiHeader({ name: 'access', description: 'access token' })
@@ -31,18 +33,34 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/follower')
+  @ApiOperation({ summary: '팔로워 목록 가져오기' })
+  async getFollower(@Req() req) {
+    const followers = await this.usersService.getFollower(req.userId);
+    return new followerDto(followers);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/following')
+  @ApiOperation({ summary: '팔로잉 목록 가져오기' })
+  async getFollowing(@Req() req) {
+    const followings = await this.usersService.getFollowing(req.userId);
+    return new followingDto(followings);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('/follow')
   @ApiOperation({ summary: '유저 팔로우 하기' })
-  @ApiBody({ type: SetNicknameRequestDto })
+  @ApiBody({ type: followRequestDto })
   async follow(@Req() req, @Body() data: followRequestDto) {
     await this.usersService.follow(req.userId, data.userId);
     return 'success';
   }
 
-  @Public()
+  @UseGuards(JwtAuthGuard)
   @Post('/unfollow')
   @ApiOperation({ summary: '유저 언팔로우 하기' })
-  @ApiBody({ type: SetNicknameRequestDto })
+  @ApiBody({ type: followRequestDto })
   async unfollow(@Req() req, @Body() data: followRequestDto) {
     await this.usersService.unfollow(req.userId, data.userId);
     return 'success';
