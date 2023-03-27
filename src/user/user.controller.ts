@@ -7,15 +7,19 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Public } from 'src/auth/skip-auth.decorator';
 import { UserService } from './user.service';
 import { UserInfoRequestDto } from './request.dto/userInfo.request.dto';
 import { SetNicknameRequestDto } from './request.dto/setNickname.request.dto';
+
 import { followRequestDto } from './request.dto/follow.request.dto';
-import { followerDto } from "./response.dto/follower.response.dto";
-import { followingDto } from "./response.dto/following.response.dto";
+import { searchFollowRequestDto } from './request.dto/searchFollow.request.dto';
+import { followerResponseDto } from './response.dto/follower.response.dto';
+import { followingResponseDto } from './response.dto/following.response.dto';
+import { scheduleResponseDto } from "../schedule/dto/schedule.response.dto";
+
 
 @ApiTags('user')
 @ApiHeader({ name: 'access', description: 'access token' })
@@ -32,20 +36,58 @@ export class UserController {
     return 'success';
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get('/follower')
-  @ApiOperation({ summary: '팔로워 목록 가져오기' })
-  async getFollower(@Req() req) {
-    const followers = await this.usersService.getFollower(req.userId);
-    return new followerDto(followers);
+  @ApiOperation({ summary: '나를 팔로우 하는 유저 목록 가져오기' })
+  @ApiResponse({
+    type: followerResponseDto,
+  })
+  async getFollower(@Req() req, @Body() data) {
+    const followers = await this.usersService.getFollower(data.userId);
+    return new followerResponseDto(followers);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Public()
   @Get('/following')
-  @ApiOperation({ summary: '팔로잉 목록 가져오기' })
+  @ApiOperation({ summary: '내가 팔로우 하는 유저 목록 가져오기' })
+  @ApiResponse({
+    type: followingResponseDto,
+  })
   async getFollowing(@Req() req) {
     const followings = await this.usersService.getFollowing(req.userId);
-    return new followingDto(followings);
+    return new followingResponseDto(followings);
+  }
+
+  @Public()
+  @Post('/follower')
+  @ApiBody({ type: searchFollowRequestDto })
+  @ApiOperation({ summary: '나를 팔로우 하는 사람 중 특정 닉네임 검색하기' })
+  @ApiResponse({
+    type: followerResponseDto,
+  })
+  async searchFollower(@Req() req, @Body() data: searchFollowRequestDto) {
+    const followers = await this.usersService.searchFollower(
+      req.userId,
+      data.nickname,
+    );
+
+    return new followerResponseDto(followers);
+  }
+
+  @Public()
+  @Post('/following')
+  @ApiBody({ type: searchFollowRequestDto })
+  @ApiOperation({ summary: '내가 팔로우 하는 사람 중 특정 닉네임 검색하기' })
+  @ApiResponse({
+    type: followingResponseDto,
+  })
+  async searchFollowing(@Req() req, @Body() data: searchFollowRequestDto) {
+    const followings = await this.usersService.searchFollowing(
+      req.userId,
+      data.nickname,
+    );
+
+    return new followingResponseDto(followings);
   }
 
   @UseGuards(JwtAuthGuard)

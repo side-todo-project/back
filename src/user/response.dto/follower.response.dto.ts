@@ -1,13 +1,31 @@
 import { Users } from '../../entities/user';
+import { ApiProperty } from '@nestjs/swagger';
 
-class followerDto {
+class followerResponseDto {
+  
+  @ApiProperty({
+    name: 'followers',
+    description: '팔로워 목록',
+    properties: {
+      id: {
+        description: '유저 id',
+      },
+      nickname: {
+        description: '유저 nickname',
+      },
+    },
+  })
+  public followers: {
+    id: number;
+    nickname: string;
+  }[];
+
   constructor(obj: Users[]) {
-    const follwers = [];
+    this.followers = [];
     obj.forEach((user) => {
-      follwers.push({ id: user.id, nickname: user.nickname });
+      this.followers.push({ id: user.id, nickname: user.nickname });
     });
-    return follwers;
   }
 }
 
-export { followerDto };
+export { followerResponseDto };

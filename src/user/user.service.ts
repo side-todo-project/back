@@ -180,6 +180,42 @@ export class UserService {
     }
   }
 
+  async searchFollower(userId: number, userNickname: string) {
+    try {
+      const queryBuilder = this.usersRepository.createQueryBuilder('user');
+      const followings = await queryBuilder
+        .leftJoinAndSelect('user.followings', 'following')
+        .where('following.id = :userId', { userId })
+        .andWhere('user.nickname LIKE :nickname', {
+          nickname: `%${userNickname}%`,
+        })
+        .getMany();
+
+      return followings;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async searchFollowing(userId: number, userNickname: string) {
+    try {
+      const queryBuilder = this.usersRepository.createQueryBuilder('user');
+      const followers = await queryBuilder
+        .leftJoinAndSelect('user.followers', 'followers')
+        .where('followers.id = :userId', { userId })
+        .andWhere('user.nickname LIKE :nickname', {
+          nickname: `%${userNickname}%`,
+        })
+        .getMany();
+
+      return followers;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
   async follow(followerId: number, followingId: number) {
     try {
       const me = await this.usersRepository.findOne({
