@@ -6,8 +6,7 @@ import {
   Get,
   Put,
   UseGuards,
-  Res,
-  Redirect,
+  Query,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
@@ -66,7 +65,7 @@ export class ScheduleController {
     description: '성공',
     type: scheduleResponseDto,
   })
-  async getSchedule(@Req() req, @Body() data: getScheduleRequestDto) {
+  async getSchedule(@Req() req, @Query() data: getScheduleRequestDto) {
     return this.scheduleService.getSchedule(req.user.userId, data.scheduleDate);
   }
 
@@ -108,7 +107,7 @@ export class ScheduleController {
     );
   }
 
-  @Get('latest')
+  @Get('/latest')
   @ApiOperation({
     summary: '공개된 최신 일정기불러오기',
     description: '공개된 최신 일정을 최대 8개 불러옵니다.',
@@ -131,7 +130,10 @@ export class ScheduleController {
     description: '성공',
     type: scheduleResponseDto,
   })
-  async getOtherSchedule(@Req() req, @Body() data: getOtherScheduleRequestDto) {
+  async getOtherSchedule(
+    @Req() req,
+    @Query() data: getOtherScheduleRequestDto,
+  ) {
     return this.scheduleService.getOtherSchedule(data.scheduleId);
   }
 }

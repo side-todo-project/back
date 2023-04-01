@@ -4,9 +4,9 @@ import { IsInt } from 'class-validator';
 export class UserInfoRequestDto {
   @IsInt()
   @ApiProperty({
-    name: 'id',
+    name: 'userId',
     description: '유저 아이디',
     example: '1',
   })
-  public id: number;
+  public userId: number;
 }

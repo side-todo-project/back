@@ -4,10 +4,17 @@ import {
   Get,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBody,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 import { UserService } from './user.service';
@@ -18,7 +25,6 @@ import { followRequestDto } from './request.dto/follow.request.dto';
 import { searchFollowRequestDto } from './request.dto/searchFollow.request.dto';
 import { followerResponseDto } from './response.dto/follower.response.dto';
 import { followingResponseDto } from './response.dto/following.response.dto';
-
 
 @ApiTags('user')
 @ApiHeader({ name: 'access', description: 'access token' })
@@ -110,8 +116,8 @@ export class UserController {
   @Get('/info')
   @ApiOperation({ summary: '다른 유저 정보 보여주기' })
   @ApiBody({ type: UserInfoRequestDto })
-  async infoOther(@Body() data: UserInfoRequestDto) {
-    return this.usersService.getUserInfo(data.id);
+  async infoOther(@Query() data: UserInfoRequestDto) {
+    return this.usersService.getUserInfo(data.userId);
   }
 
   @UseGuards(JwtAuthGuard)
