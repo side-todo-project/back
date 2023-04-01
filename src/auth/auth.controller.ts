@@ -56,13 +56,13 @@ export class AuthController {
     if (result.newUser) {
       return res
         .cookie('Authentication', result.accessToken, {
-          expires: new Date(Date.now() + 900000),
-          maxAge: 900000,
+          expires: new Date(Date.now() + 900000000000),
+          maxAge: 900000000000,
           httpOnly: true,
         })
         .cookie('Refresh', result.refreshToken, {
-          expires: new Date(Date.now() + 90000000),
-          maxAge: 90000000,
+          expires: new Date(Date.now() + 900000000000),
+          maxAge: 900000000000,
           httpOnly: true,
         })
         .redirect(301, `${process.env.FRONT_PORT}/nickname`);
@@ -70,13 +70,13 @@ export class AuthController {
 
     return res
       .cookie('Authentication', result.accessToken, {
-        expires: new Date(Date.now() + 900000),
-        maxAge: 900000,
+        expires: new Date(Date.now() + 900000000000),
+        maxAge: 900000000000,
         httpOnly: true,
       })
       .cookie('Refresh', result.refreshToken, {
-        expires: new Date(Date.now() + 90000000),
-        maxAge: 90000000,
+        expires: new Date(Date.now() + 900000000000),
+        maxAge: 900000000000,
         httpOnly: true,
       })
       .redirect(301, `${process.env.FRONT_PORT}`);
@@ -113,13 +113,13 @@ export class AuthController {
     if (result.newUser) {
       return res
         .cookie('Authentication', result.accessToken, {
-          expires: new Date(Date.now() + 900000),
-          maxAge: 900000,
+          expires: new Date(Date.now() + 900000000000),
+          maxAge: 900000000000,
           httpOnly: true,
         })
         .cookie('Refresh', result.refreshToken, {
-          expires: new Date(Date.now() + 90000000),
-          maxAge: 90000000,
+          expires: new Date(Date.now() + 900000000000),
+          maxAge: 900000000000,
           httpOnly: true,
         })
         .redirect(301, `${process.env.FRONT_PORT}/nickname`);
@@ -127,13 +127,13 @@ export class AuthController {
 
     return res
       .cookie('Authentication', result.accessToken, {
-        expires: new Date(Date.now() + 900000),
-        maxAge: 900000,
+        expires: new Date(Date.now() + 900000000000),
+        maxAge: 900000000000,
         httpOnly: true,
       })
       .cookie('Refresh', result.refreshToken, {
-        expires: new Date(Date.now() + 90000000),
-        maxAge: 90000000,
+        expires: new Date(Date.now() + 900000000000),
+        maxAge: 900000000000,
         httpOnly: true,
       })
       .redirect(301, `${process.env.FRONT_PORT}`);
@@ -144,7 +144,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description: '닉네임이 설정되어있다면 /로 없다면 /nickname으로 redirect됩니다! 토큰은 자동으로 header에 설정됩니다.',
+    description:
+      '닉네임이 설정되어있다면 /로 없다면 /nickname으로 redirect됩니다! 토큰은 자동으로 header에 설정됩니다.',
   })
   @Public()
   @Get('/login/google')
@@ -166,13 +167,13 @@ export class AuthController {
     if (result.newUser) {
       return res
         .cookie('Authentication', result.accessToken, {
-          expires: new Date(Date.now() + 900000),
-          maxAge: 900000,
+          expires: new Date(Date.now() + 900000000000),
+          maxAge: 900000000000,
           httpOnly: true,
         })
         .cookie('Refresh', result.refreshToken, {
-          expires: new Date(Date.now() + 90000000),
-          maxAge: 90000000,
+          expires: new Date(Date.now() + 900000000000),
+          maxAge: 900000000000,
           httpOnly: true,
         })
         .redirect(301, `${process.env.FRONT_PORT}/nickname`);
@@ -180,13 +181,13 @@ export class AuthController {
 
     return res
       .cookie('Authentication', result.accessToken, {
-        expires: new Date(Date.now() + 900000),
-        maxAge: 900000,
+        expires: new Date(Date.now() + 900000000000),
+        maxAge: 900000000000,
         httpOnly: true,
       })
       .cookie('Refresh', result.refreshToken, {
-        expires: new Date(Date.now() + 90000000),
-        maxAge: 90000000,
+        expires: new Date(Date.now() + 900000000000),
+        maxAge: 900000000000,
         httpOnly: true,
       })
       .redirect(301, `${process.env.FRONT_PORT}`);
@@ -199,7 +200,7 @@ export class AuthController {
     const accessToken = this.authService.reIssueAccessToken(req.user.userId);
     res.cookie('Authentication', accessToken, {
       httpOnly: true,
-      expires: new Date(Date.now() + 90000000),
+      expires: new Date(Date.now() + 900000000000),
     });
     return 'success';
   }
