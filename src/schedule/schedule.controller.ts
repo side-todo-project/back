@@ -122,8 +122,8 @@ export class ScheduleController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/')
-  @ApiOperation({ summary: '일정 가져오기' })
+  @Get('/other')
+  @ApiOperation({ summary: '남의 일정 가져오기' })
   @ApiBody({ type: getOtherScheduleRequestDto })
   @ApiResponse({
     status: 200,
