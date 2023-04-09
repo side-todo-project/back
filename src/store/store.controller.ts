@@ -1,12 +1,20 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { buyItemRequestDto } from './dto/buyItem.request.dto';
 import { StoreService } from './store.service';
 
-@Controller('store')
+@ApiTags('store')
+@ApiHeader({ name: 'access', description: 'access token' })
+@Controller('api/store')
 export class StoreController {
-  constructor(private storeService: StoreService) { }
+  constructor(private storeService: StoreService) {}
 
   @UseGuards(JwtAuthGuard)
   @Post('/')
@@ -15,9 +23,8 @@ export class StoreController {
   @ApiResponse({
     status: 200,
     description: '성공',
-    // type: scheduleResponseDto,
   })
   async buyItem(@Req() req, @Body() data: buyItemRequestDto) {
-    // return this.storeService.buyItem();
+    await this.storeService.buyItem(req.userId, data.itemId);
   }
 }
